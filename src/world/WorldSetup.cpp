@@ -137,8 +137,11 @@ void SetupWorld(entt::registry& registry)
     // catch the lowest, jump again from there to the next, and so on up to the ledge at the
     // top. Every boundary below is exactly contiguous with its neighbour (no overlapping
     // colliders/geometry), since an overlap here previously caused z-fighting and collision
-    // jitter.
-    CreateGrabWall(registry, Vector3{ 50.0f, 5.0f, 0.0f }, Vector3{ 4.0f, 10.0f, 2.0f }, Color{ 80, 65, 55, 255 },
+    // jitter. The collider's bottom is raised to y = 0.5 (height 9.5, not 10, same top) so
+    // it does not also overlap the ground patch beneath it in y - two solid colliders
+    // occupying the same space fought each other every frame, which could pin the player or
+    // cancel a jump away from the wall.
+    CreateGrabWall(registry, Vector3{ 50.0f, 5.25f, 0.0f }, Vector3{ 4.0f, 9.5f, 2.0f }, Color{ 80, 65, 55, 255 },
                     { 4.0f, 7.5f, 10.0f });
     CreatePlatform(registry, Vector3{ 60.0f, 9.5f, 0.0f }, Vector3{ 16.0f, 1.0f, 2.0f }, Color{ 110, 90, 60, 255 }); // ledge 1, x = [52, 68] (top = 10)
 
@@ -149,7 +152,8 @@ void SetupWorld(entt::registry& registry)
     // second handhold wall (x = 92..96, y = 0..10): same three grab points, so the ledge is
     // also reachable by climbing up from the resumed ground on its far side, not only from
     // ledge 2 - jumping down off the ledge needs no assistance, gravity handles that on its own
-    CreateGrabWall(registry, Vector3{ 94.0f, 5.0f, 0.0f }, Vector3{ 4.0f, 10.0f, 2.0f }, Color{ 80, 65, 55, 255 },
+    // (collider bottom raised to y = 0.5 for the same reason as the first wall)
+    CreateGrabWall(registry, Vector3{ 94.0f, 5.25f, 0.0f }, Vector3{ 4.0f, 9.5f, 2.0f }, Color{ 80, 65, 55, 255 },
                     { 4.0f, 7.5f, 10.0f });
 
     // a walkable hill further along the resumed ground: climbs and descends by simply

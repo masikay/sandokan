@@ -38,6 +38,14 @@ void CollisionSystem(entt::registry& registry)
 
     for (auto playerEntity : players)
     {
+        // while hanging from a grab point, LedgeGrabSystem owns the player's position
+        // outright (deliberately overlapping/touching the very wall it is grabbing); running
+        // normal AABB resolution on top of that fought it for control of position/velocity
+        // every frame, which could cancel a jump-away or pin the player against the wall.
+        // WallSettle must NOT be skipped: gravity is active again by then (no LedgeHang), so
+        // without collision the player sinks straight into the top of the wall.
+        if (registry.all_of<LedgeHang>(playerEntity)) continue;
+
         auto& playerTransform = players.get<Transform3D>(playerEntity);
         auto& playerVelocity = players.get<Velocity>(playerEntity);
 
