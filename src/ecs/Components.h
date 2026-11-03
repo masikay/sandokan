@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include <entt/entt.hpp>
@@ -34,6 +35,14 @@ struct Collider {
 struct BoxRenderable {
     Vector3 size{ 1.0f, 1.0f, 1.0f };
     Color color = WHITE;
+};
+
+// A GLB model drawn instead of the entity's box when it can be loaded (the box then only
+// acts as collider). Drawn centered on the box, uniformly scaled and rotated around X, Y, Z.
+struct ModelRenderable {
+    std::string name;
+    Vector3 rotation{ 0.0f, 0.0f, 0.0f }; // degrees
+    float scale = 1.0f;
 };
 
 // A straight walkable ramp between two ground-surface points (not player stand height,
@@ -90,3 +99,7 @@ struct RecentRelease {
 struct WallSettle {
     float targetX = 0.0f;
 };
+
+// Tags every entity spawned from the authored level data, so the level can be cleared and
+// re-spawned (e.g. by the editor) without touching the player
+struct LevelEntity {};

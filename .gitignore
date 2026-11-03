@@ -2,3 +2,5 @@ build/
 .cache/
 *.o
 .vscode/
+assets/
+imgui.ini

@@ -1,8 +1,12 @@
 #include "RenderSystem.h"
 
+#include <cmath>
+
 #include <raylib.h>
 
 #include "../Components.h"
+#include "render/ModelCache.h"
+#include "render/ModelTransform.h"
 
 namespace
 {
@@ -39,6 +43,28 @@ void RenderSystem(entt::registry& registry)
 
         auto& transform = boxView.get<Transform3D>(entity);
         auto& box = boxView.get<BoxRenderable>(entity);
+
+        if (auto* modelInfo = registry.try_get<ModelRenderable>(entity))
+        {
+            if (const Model* model = GetModel(modelInfo->name))
+            {
+                // models are authored with their pivot somewhere (usually the base); draw
+                // them so the middle of their transformed bounds sits at the entity position,
+                // which is also the middle of the collider box
+                BoundingBox bounds = TransformedModelBounds(*model, modelInfo->rotation, modelInfo->scale);
+                Vector3 center = { (bounds.min.x + bounds.max.x) * 0.5f, (bounds.min.y + bounds.max.y) * 0.5f,
+                                   (bounds.min.z + bounds.max.z) * 0.5f };
+                Vector3 origin = { transform.position.x - center.x, transform.position.y - center.y,
+                                   transform.position.z - center.z };
+
+                // Model is a small struct of pointers, so a by-value copy is cheap; its
+                // transform is applied to the vertices before DrawModel's own translation
+                Model placed = *model;
+                placed.transform = ModelMatrix(modelInfo->rotation, modelInfo->scale);
+                DrawModel(placed, origin, 1.0f, WHITE);
+                continue;
+            }
+        }
 
         DrawCube(transform.position, box.size.x, box.size.y, box.size.z, box.color);
         DrawCubeWires(transform.position, box.size.x, box.size.y, box.size.z, Fade(BLACK, 0.3f));
